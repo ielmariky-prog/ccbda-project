@@ -1,0 +1,12 @@
+# proj1102 - freshness
+#
+# Hourly parquet-age probe, publishes a custom CloudWatch metric.
+#
+# Runtime-provided (AWS Lambda Python 3.12 base image):
+#   boto3, botocore, json, os, io, urllib, datetime, decimal
+#
+# Layer-provided (AWSSDKPandas-Python312:24 - already attached in deploy.sh):
+#   pandas, pyarrow, numpy
+#
+# Direct dependencies packaged into the deployment zip:
+#   (none - code uses only runtime + layer deps)

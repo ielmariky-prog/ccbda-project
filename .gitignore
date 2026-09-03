@@ -1,0 +1,31 @@
+.env
+.venv/
+*.zip
+__pycache__/
+.idea/
+.~lock.*#
+Team Coordination Plan.docx
+*_accessKeys.csv
+*.csv.bak
+Ralph_Weekly_Log.md
+sentiment/state.json
+sentiment/sentiment_test.csv
+sagemaker/state.json
+sagemaker/input/*.jsonl
+sagemaker/team_state.json
+sagemaker/team_input/
+Friday_Prep.pdf
+sagemaker/daily_state.json
+sagemaker/daily_input/
+.pytest_cache/
+
+# Report LaTeX source stays local; only the built report.pdf + photos/ are pushed
+report/
+report_other_project/
+
+# internal report-prep notes, kept local only
+REPORT_NOTES.md
+COST_LOG.md
+
+# throwaway API test, kept local only
+test_news.py

@@ -1,0 +1,185 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{lmodern}
+\usepackage{tocloft}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+
+\usepackage[normalem]{ulem}
+\newcommand{\redsout}[1]{\textcolor{red}{\sout{\textcolor{black}{#1}}}}
+
+\pagestyle{fancy}
+\fancyfoot[C]{\thepage}
+\fancyhead[L]{\small\textit{Facultat d'Informàtica de Barcelona — Master of Innovation and Research in Informatics}\\ \textbf{\normalsize Cloud Computing and Big Data Analytics}}
+\fancyhead[R]{2025--2026}
+\setlength{\headheight}{28pt}
+\makeatletter
+\let\ps@plain\ps@fancy
+\makeatother
+
+\begin{document}
+\begin{titlepage}
+    \thispagestyle{fancy}
+    \centering
+    \vspace*{-0.8cm}
+
+    \begin{center}
+\begin{minipage}[c]{0.35\linewidth}
+    \centering
+    \includegraphics[height=1.8cm,keepaspectratio]{UPC-2.png}
+\end{minipage}%
+\begin{minipage}[c]{0.35\linewidth}
+    \centering
+    \includegraphics[height=1.8cm,keepaspectratio]{fib.png}
+\end{minipage}
+\end{center}
+
+
+  \vspace{0.2cm}
+{\LARGE\bfseries Project First Draft Delivery \\[0.2cm]
+\textit{Near Real-Time Financial Forecasting using Amazon SageMaker}}\\[0.6cm]
+
+
+\begin{center}
+    \textbf{\huge\scshape Contents}
+\end{center}
+
+\vspace{-0.8cm}
+    \renewcommand{\contentsname}{}
+    \renewcommand{\cftsecfont}{\bfseries}
+    \renewcommand{\cftsubsecfont}{\normalfont}
+    \setlength{\cftbeforesecskip}{8pt}
+    \setlength{\cftbeforesubsecskip}{2pt}
+    {\normalsize\tableofcontents}
+
+   \vspace{1.2cm}
+\begin{center}
+{\large
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}l @{\hspace{2cm}} l @{\hspace{2cm}} l@{}}
+\textbf{Group Members} & \textbf{Group} & \textbf{Date} \\
+Arthur Bohin        & 11\_02 & \today \\
+Dalibor Švonavec    &        &        \\
+Ilyas El Mariky     &        &        \\
+Francesco Barillari &        &        \\
+Ralph Khairallah    &        &        \\
+\end{tabular}
+}
+\end{center}
+\vfill
+
+\end{titlepage}
+
+% Reset counters in case the titlepage TOC scaffolding advanced them.
+\setcounter{section}{0}
+\setcounter{subsection}{0}
+
+\clearpage
+
+\section{Project Title}
+\textbf{Near Real-Time Financial Forecasting using Amazon SageMaker.}
+
+\section{Motivation}
+Financial markets generate continuous time series data (stocks, cryptocurrencies, trading volume).
+Being able to forecast trends and detect anomalies is highly valuable for investors and analysts.
+Instead of using static datasets, this project focuses on building a \textbf{cloud-based pipeline} that continuously collects and processes financial data, making better use of AWS services and taking real advantage of the elasticity and automation offered by the cloud.
+
+\section{Project Objective}
+The goal of this project is to build a near real-time forecasting system that:
+\begin{itemize}[leftmargin=1.2em]
+    \item Collects financial data periodically from external APIs.
+    \item Streams and processes incoming data in real time.
+    \item Stores and updates the dataset continuously.
+    \item Enriches forecasts with sentiment analysis from financial news.
+    \item Uses \textbf{Amazon SageMaker} to generate predictions.
+    \item Analyzes trends, uncertainty, and anomalies.
+    \item Provides a live dashboard for visualization and alerts.
+\end{itemize}
+
+\section{Data Source}
+We will use financial APIs such as:
+\begin{itemize}[leftmargin=1.2em]
+    \item Yahoo Finance API
+    \item Alpha Vantage API
+\end{itemize}
+
+These APIs provide:
+\begin{itemize}[leftmargin=1.2em]
+    \item Stock prices (e.g., AAPL, TSLA)
+    \item Cryptocurrency prices (e.g., BTC, ETH)
+    \item Trading volume
+\end{itemize}
+
+Data will be collected every few minutes (near real-time), ensuring that our pipeline continuously processes fresh information rather than relying on a single static download.
+
+Additionally, we will ingest financial news headlines from sources such as NewsAPI or Alpha Vantage News to perform sentiment analysis and use sentiment scores as related time series input for the forecasting model.
+
+\section{Proposed Architecture}
+
+\subsection{Components}
+\begin{itemize}[leftmargin=1.2em]
+    \item \textbf{Amazon EventBridge} $\rightarrow$ Schedule periodic triggers for the pipeline (every $X$ minutes).
+    \item \textbf{AWS Lambda} $\rightarrow$ Fetch financial data and news from external APIs.
+    \item \textbf{Amazon SQS} $\rightarrow$ Decouple producers and consumers; buffer incoming data and news messages between Lambda, Glue, and the forecasting stage.
+    \item \textbf{AWS Glue} $\rightarrow$ Clean, transform, and catalog the raw data (ETL).
+    \item \textbf{Amazon S3} $\rightarrow$ Store raw and processed time series data.
+    \item \textbf{Amazon Comprehend} $\rightarrow$ Perform sentiment analysis on financial news headlines.
+    \item \textbf{Amazon SageMaker} $\rightarrow$ Train forecasting models and generate predictions using price data and sentiment scores as related time series.
+    \item \textbf{Amazon DynamoDB} $\rightarrow$ Store forecast results and sentiment scores for fast retrieval.
+    \item \textbf{Amazon QuickSight} $\rightarrow$ Live dashboard to visualize forecasts, confidence intervals, and anomalies.
+    \item \textbf{Amazon SNS} $\rightarrow$ Send alert notifications when anomalies or significant deviations are detected.
+    \item \textbf{Amazon CloudWatch} $\rightarrow$ Monitor the entire pipeline (logs, errors, metrics).
+    \item \textbf{AWS Step Functions} $\rightarrow$ Orchestrate the end-to-end workflow (ingestion $\rightarrow$ ETL $\rightarrow$ forecast $\rightarrow$ alerts).
+\end{itemize}
+
+\subsection{Workflow}
+\begin{enumerate}[leftmargin=1.4em]
+    \item Amazon EventBridge triggers a Lambda function every $X$ minutes.
+    \item Lambda fetches financial price data and news headlines from external APIs.
+    \item Raw data and news messages are pushed to Amazon SQS queues to decouple ingestion from processing.
+    \item AWS Glue processes, cleans, and stores the data in S3 in the format required by Amazon SageMaker.
+    \item Amazon Comprehend analyzes news headlines and produces sentiment scores, stored alongside price data.
+    \item Amazon SageMaker trains/updates the model using historical prices and sentiment as related time series, then generates predictions.
+    \item Forecast results and anomaly flags are written to DynamoDB.
+    \item Amazon QuickSight reads from DynamoDB/S3 to display a live dashboard with predictions, confidence intervals, and anomaly highlights.
+    \item Amazon SNS sends email/SMS alerts when anomalies or large forecast deviations are detected.
+    \item AWS Step Functions orchestrates the full pipeline; CloudWatch monitors each step for errors and latency.
+\end{enumerate}
+
+\section{Key Features}
+\begin{itemize}[leftmargin=1.2em]
+    \item Near real-time data ingestion via scheduled Lambda + SQS queues.
+    \item Automated ETL pipeline with AWS Glue.
+    \item Continuous forecasting updates with Amazon SageMaker.
+    \item Sentiment analysis on financial news using Amazon Comprehend, fed as a related time series to improve predictions.
+    \item Comparison between different assets (stocks vs.\ crypto).
+    \item Confidence intervals and prediction uncertainty.
+    \item Anomaly detection with automatic alerts via Amazon SNS.
+    \item Live interactive dashboard via Amazon QuickSight.
+    \item Fully orchestrated, serverless pipeline using AWS Step Functions.
+\end{itemize}
+
+\section{Expected Results}
+\begin{itemize}[leftmargin=1.2em]
+    \item Forecast graphs showing actual vs.\ predicted values with confidence intervals.
+    \item Comparison of different assets (stocks vs.\ cryptocurrencies).
+    \item Impact analysis of news sentiment on forecast accuracy.
+    \item Anomaly detection reports and alert history.
+    \item Analysis of model performance across assets and time windows.
+    \item A live QuickSight dashboard accessible to the team and evaluators.
+    \item Insights into the benefits and limitations of a fully cloud-native financial forecasting pipeline.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,77 @@
+{
+  "Comment": "proj1102 hourly orchestration — forecast Lambda then QuickSight refresh, with retries and a single SNS failure path. Replaces the two independent EventBridge schedules with one orchestrated execution so the QuickSight refresh only runs if the forecast succeeded.",
+  "StartAt": "Forecast",
+  "States": {
+    "Forecast": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "TimeoutSeconds": 300,
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:148557232117:function:proj1102-forecast"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "NotifyFailure"
+        }
+      ],
+      "ResultPath": "$.forecast",
+      "Next": "QuickSightRefresh"
+    },
+    "QuickSightRefresh": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "TimeoutSeconds": 120,
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:148557232117:function:proj1102-quicksight-refresh"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "NotifyFailure"
+        }
+      ],
+      "ResultPath": "$.quicksight",
+      "End": true
+    },
+    "NotifyFailure": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "TimeoutSeconds": 30,
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:eu-west-1:148557232117:proj1102-infra-alarms",
+        "Subject": "[ALARM] proj1102 pipeline orchestration failed",
+        "Message.$": "States.Format('Step Functions execution failed.\nError cause: {}', States.JsonToString($.error))"
+      },
+      "End": true
+    }
+  }
+}

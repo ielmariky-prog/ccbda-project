@@ -1,0 +1,33 @@
+{
+  "sources": {
+    "prices": {
+      "queue_url": "https://sqs.eu-west-1.amazonaws.com/834922934600/proj1102-prices-queue",
+      "queue_arn": "arn:aws:sqs:eu-west-1:834922934600:proj1102-prices-queue",
+      "description": "Per-ticker price messages: {symbol, price, volume, timestamp}"
+    },
+    "news": {
+      "queue_url": "https://sqs.eu-west-1.amazonaws.com/834922934600/proj1102-news-queue",
+      "queue_arn": "arn:aws:sqs:eu-west-1:834922934600:proj1102-news-queue",
+      "description": "News headlines: {ticker, timestamp, headline, url, source} — consumed and deleted; sentiment filled by Ralph's Comprehend Lambda"
+    }
+  },
+  "s3": {
+    "bucket": "proj1102-data",
+    "processed_prefix": "processed",
+    "forecast_ready_prefix": "forecast-ready",
+    "sentiment_prefix": "sentiment"
+  },
+  "glue": {
+    "interval_minutes": 5,
+    "max_sqs_messages": 500,
+    "job_arguments": {
+      "--output_bucket":    "proj1102-data",
+      "--prices_queue_url": "https://sqs.eu-west-1.amazonaws.com/834922934600/proj1102-prices-queue",
+      "--forecast_ready_prefix": "forecast-ready",
+      "--sentiment_prefix": "sentiment",
+      "--max_sqs_messages": "500",
+      "--interval_minutes": "5",
+      "--additional-python-modules": "pandas,pyarrow"
+    }
+  }
+}

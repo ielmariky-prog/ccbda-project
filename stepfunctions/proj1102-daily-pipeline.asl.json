@@ -1,0 +1,77 @@
+{
+  "Comment": "proj1102 daily orchestration — fetch daily closes then run 7-day forecast. Sister of proj1102-pipeline (hourly). Replaces the two independent EventBridge schedules (proj1102-daily-ingest-schedule + proj1102-daily-forecast-schedule) with one sequential state machine so the forecast only runs if the ingest succeeded.",
+  "StartAt": "DailyIngest",
+  "States": {
+    "DailyIngest": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "TimeoutSeconds": 90,
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:148557232117:function:proj1102-daily-ingest"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "NotifyFailure"
+        }
+      ],
+      "ResultPath": "$.ingest",
+      "Next": "DailyForecast"
+    },
+    "DailyForecast": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "TimeoutSeconds": 180,
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:eu-west-1:148557232117:function:proj1102-daily-forecast"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "NotifyFailure"
+        }
+      ],
+      "ResultPath": "$.forecast",
+      "End": true
+    },
+    "NotifyFailure": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "TimeoutSeconds": 30,
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:eu-west-1:148557232117:proj1102-infra-alarms",
+        "Subject": "[ALARM] proj1102 daily pipeline failed",
+        "Message.$": "States.Format('Step Functions execution failed.\nError cause: {}', States.JsonToString($.error))"
+      },
+      "End": true
+    }
+  }
+}

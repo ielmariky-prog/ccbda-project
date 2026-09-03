@@ -1,0 +1,19 @@
+{
+  "stocks": ["TSLA", "MSFT", "NVDA"],
+  "crypto": [],
+  "interval": "5min",
+  "metadata": {
+    "TSLA": {
+      "sector": "automotive",
+      "asset_class": "equity"
+    },
+    "MSFT": {
+      "sector": "technology",
+      "asset_class": "equity"
+    },
+    "NVDA": {
+      "sector": "technology",
+      "asset_class": "equity"
+    }
+  }
+}
