@@ -133,12 +133,3 @@ make test     # pytest unit tests
 make health   # query AWS and print a health board for the whole pipeline
 ```
 
-## Team
-
-| Member | Stage | Email |
-|--------|-------|-------|
-| Ralph Khairallah | Sentiment + forecasting | ralphkhairallah200@gmail.com |
-| Ilias El Mariky | Ingestion | ielmariky@gmail.com |
-| Dalibor Švonavec | Data preparation (Glue) | daliborsvonavec@gmail.com |
-| Francesco Barillari | Dashboard | francesco.barillari@estudiantat.upc.edu |
-| Arthur Bohin | Alerting + orchestration | arthur.bohin@gmail.com |
